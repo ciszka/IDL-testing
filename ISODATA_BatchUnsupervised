@@ -1,55 +1,45 @@
-; Below here is copied from https://www.harrisgeospatial.com/docs/programmingguidegettingstarted.html#Writing
+; Below here is copied from https://www.harrisgeospatial.com/docs/programmingguidegettingstarted.html#Writing and
+; Below here is copied from https://www.harrisgeospatial.com/docs/ENVIISODATAClassificationTask.html
 
-PRO TimeSeriesExample
+PRO batchClusterData
   COMPILE_OPT IDL2
    
-  ; Start the application
-  e = ENVI(/HEADLESS)
+  ; Start the application ; Start the application
+  e = ENVI() ; from the Isodata portion
+  e = ENVI(/HEADLESS) ; from the batch processing
+ 
    
   ; Select input files
-  TimeSeriesDir = Filepath('', Subdir=['data','time_series'], $
+  isoDataDir = Filepath('', Subdir=['data','time_series'], $
     Root_Dir = e.Root_Dir)
-  Rasters = File_Search(TimeSeriesDir, 'AirTemp*.dat')
+  filesToProcess = File_Search(isoDataDir, 'AirTemp*.dat')
+ 
+ ; Get the  task from the catalog of ENVITasks
+  Task = ENVITask('ISODATAClassification')
    
-  ; Get the acquisition times
-  For i=0, N_Elements(Rasters)-1 DO BEGIN
-    Raster = e.OpenRaster(Rasters[i])
-    PRINT, Raster.Time.Acquisition
+  ; this is a For loop to do whatever you want to do 
+  For i=0, N_Elements(filesToProcess)-1 DO BEGIN
+    Raster = e.OpenRaster(filesToProcess[i])
+    Task.Input_Raster = Raster    
+    ; Define outputs
+    Task.Output_Raster_URI = e.GetTemporaryFilename()
+    ; Run the task
+    Task.Execute
+    PRINT, "did the thing" 
+    ; Get the collection of data objects currently available in the Data Manager
+    DataColl = e.Data
+ 
+    ; Add the output to the Data Manager
+    DataColl.Add, Task.Output_Raster
+ 
+    ; Display the result
+    View1 = e.GetView()
+    Layer1 = View1.CreateLayer(Task.Output_Raster)
+
   Endfor
-   
+  
   e.Close
 END
 
-; Below here is copied from https://www.harrisgeospatial.com/docs/ENVIISODATAClassificationTask.html
-; Start the application
-e = ENVI()
  
-; Open an input file
-File = Filepath('qb_boulder_msi', Subdir=['data'], $
-  Root_Dir=e.Root_Dir)
-Raster = e.OpenRaster(File)
  
-; Process a spatial subset
-Subset = ENVISubsetRaster(Raster, Sub_Rect=[600,200,799,399])
- 
-; Get the  task from the catalog of ENVITasks
-Task = ENVITask('ISODATAClassification')
- 
-; Define inputs
-Task.Input_Raster = Subset
- 
-; Define outputs
-Task.Output_Raster_URI = e.GetTemporaryFilename()
- 
-; Run the task
-Task.Execute
- 
-; Get the collection of data objects currently available in the Data Manager
-DataColl = e.Data
- 
-; Add the output to the Data Manager
-DataColl.Add, Task.Output_Raster
- 
-; Display the result
-View1 = e.GetView()
-Layer1 = View1.CreateLayer(Task.Output_Raster)
