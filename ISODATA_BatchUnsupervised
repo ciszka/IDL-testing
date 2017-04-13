@@ -21,11 +21,19 @@ PRO batchClusterData
   For i=0, N_Elements(filesToProcess)-1 DO BEGIN
     Raster = e.OpenRaster(filesToProcess[i])
     Task.Input_Raster = Raster    
+    
+    ;Need to establish a new file name for each one
+    noExt = STRSPLIT(Raster,'.tif',/EXTRACT)
+    noExt = STRSPLIT(Raster,'.TIF',/EXTRACT)
+    newFileName = noExt+"_kMeans"      
+    
+    newFileName = 
     ; Define outputs
-    Task.Output_Raster_URI = e.GetTemporaryFilename()
+    Task.Output_Raster_URI = newFileName
+    
     ; Run the task
     Task.Execute
-    PRINT, "did the thing" 
+    
     ; Get the collection of data objects currently available in the Data Manager
     DataColl = e.Data
  
@@ -35,7 +43,7 @@ PRO batchClusterData
     ; Display the result
     View1 = e.GetView()
     Layer1 = View1.CreateLayer(Task.Output_Raster)
-
+    
   Endfor
   
   e.Close
