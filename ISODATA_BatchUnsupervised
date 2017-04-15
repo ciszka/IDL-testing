@@ -1,7 +1,6 @@
-; Below here is copied from https://www.harrisgeospatial.com/docs/programmingguidegettingstarted.html#Writing and
-; Below here is copied from https://www.harrisgeospatial.com/docs/ENVIISODATAClassificationTask.html
-; The ordering is adapted for my needs
-; The goal of this is to be able to pass a file name to IDL and have it run a kmeans classification
+; Portions below here are adapted from https://www.harrisgeospatial.com/docs/programmingguidegettingstarted.html#Writing and
+; Portions below here are adapted from https://www.harrisgeospatial.com/docs/ENVIISODATAClassificationTask.html
+; ; The goal of this is to be able to pass a file name to IDL and have it run a kmeans classification
 ; on all the images in the fild location
 ; this will allow me to run/rerun my classifications for a class project
 ; if this fails I'll still have a project and was able to learn a bit about IDL
@@ -33,7 +32,6 @@ PRO batchClusterData
     noExt = STRSPLIT(Raster,'.TIF',/EXTRACT)
     newFileName = noExt+"_kMeans"      
     
-    newFileName = 
     ; Define outputs
     Task.Output_Raster_URI = newFileName
     
